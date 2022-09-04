@@ -1,7 +1,7 @@
 const http = require('http');
-const { getMusics, createMusic, likeMusic,tpt } = require('./controller/musicController');
+const { getMusics, createMusic, likeMusic } = require('./controller/musicController');
 const { getPlaylists, createPlaylist, playlistSongs } = require('./controller/playlistController');
-const { fetchQueryStringFromURL,bodyFromPost } = require('./middlewares');
+const { fetchQueryStringFromURL } = require('./middlewares');
 
 const RouterClass = require('./Router');
 const Router = new RouterClass();
@@ -9,7 +9,6 @@ const Router = new RouterClass();
 Router.addRoute('/musics', getMusics, 'get').middleware([fetchQueryStringFromURL]);
 Router.addRoute('/musics/create', createMusic, 'post').middleware([])
 Router.addRoute('/musics/like', likeMusic, 'post').middleware([])
-Router.addRoute('musics/testpost',tpt,'post').middleware([bodyFromPost])
 
 Router.addRoute('/playlists', getPlaylists, 'get').middleware(fetchQueryStringFromURL);
 Router.addRoute('/playlists/create', createPlaylist, 'post').middleware([])
