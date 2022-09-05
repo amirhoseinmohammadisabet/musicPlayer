@@ -31,16 +31,9 @@ async function getMusic(req, res, id) {
 
 async function createMusic(req, res) {
     try {
-        let data = '';
-        req.on('data', function (chunk) {
-            data += chunk;
-        })
-        req.on('end', function () {
-            data = JSON.parse(data);
-
-            Music.create(data)
-        })
-        res.setHeader('content-type', 'application/json');
+        const data = req.body
+        Music.create(data)
+        res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({ message: 'added Successfully' }));
         return res.end();
     } catch (e) {
@@ -50,21 +43,20 @@ async function createMusic(req, res) {
 
 async function likeMusic(req, res) {
     try {
-        let data = ''
-        req.on('data', function (chunk) {
-            data += chunk;
-        })
-        req.on('end', function () {
-            data = JSON.parse(data);
-            Music.like(data)
-        })
-        res.setHeader('content-type', 'application/json');
-        res.write(JSON.stringify({ message: 'liked Successfully' }));
-        return res.end()
-
+        try {
+            const data = req.body
+            await Music.like(data)
+            res.writeHead(200, { 'content-type': 'application/json' });
+            res.write(JSON.stringify({ message: 'Successfully Done!' }));
+            return res.end()
+        } catch (e) {
+            res.writeHead(400, { 'content-type': 'application/json' });
+            res.write(JSON.stringify({ message: 'something went wrong!!' }));
+            return res.end()
+        }
     } catch (e) {
-        res.setHeader('content-type', 'application/json');
-        res.write(JSON.stringify({ message: 'you are already liked ' }));
+        res.writeHead(500, { 'content-type': 'application/json' });
+        res.write(JSON.stringify({ message: 'error acurated ' }));
     }
 }
 

@@ -1,53 +1,45 @@
-const { connectDB } = require('../helper')
+const { connectDB } = require('../config');
 
 async function findAll(req, res) {
-
-    const pool = connectDB()
-    const queryForGetMusics = 'select * from music';
-    const resultForGetMusics = await (await pool.query(queryForGetMusics)).rows;
+    const pool = connectDB();
+    const queryForGettingMusics = await pool.query('select * from musics')
+    const resultForGettingMusics = queryForGettingMusics.rows
     pool.end();
-    return resultForGetMusics;
+    return resultForGettingMusics;
 }
 
 async function findById(id) {
-
-    const pool = connectDB()
-
-
-    const queryForGetMusic = `SELECT * FROM music where id=${id}`;
-    const resultForGetMusic = await (await pool.query(queryForGetMusic)).rows;
+    const pool = connectDB();
+    const queryForGettingMusic = await pool.query(`SELECT * FROM musics where id=${id}`)
+    const resultForGettingMusic = queryForGettingMusic.rows;
     pool.end();
-    return resultForGetMusic;
+    return resultForGettingMusic;
 }
 
 async function create(obj) {
-
-    const pool = connectDB()
-
-
-    let queryForInsertingMusic = await pool.query('insert into music (title ,singer) values ($1,$2)', [obj.title, obj.singer]);
+    const pool = connectDB();
+    const queryForInsertingMusic = await pool.query(`insert into musics (singer, name) values ($1,$2)`, [obj.singer, obj.name])
     return queryForInsertingMusic;
 }
 
 async function like(data) {
+    const pool = connectDB();
+    const queryChekForLike = await pool.query(`select * from likes where audience_id=${data.audience_id}`)
+    const resultCheckForLike = queryChekForLike.rows
 
-    const pool = connectDB()
-
-
-    let checkForLike = await (await pool.query('select * from "like" where audience_id=($1)', [data.audience_id])).rows
-
-    const likeModel = {}
-    likeModel.audience_id = data.audience_id
-    likeModel.music_id = data.music_id
-
-    if (checkForLike.find(obj => obj.audience_id === likeModel.audience_id && obj.music_id === likeModel.music_id)) {
+    if (resultCheckForLike.find(obj => obj.audience_id === data.audience_id && obj.music_id === data.music_id)) {
+        const queryForDeletingLikes = await pool.query(`DELETE FROM likes WHERE audience_id=${data.audience_id} AND music_id=${data.music_id}`)
+        const resultForDeletingLikes = queryForDeletingLikes.rows
+        console.log('remove');
         pool.end();
-        console.log('liked before');
+        return resultForDeletingLikes
     }
     else {
-        const queryForLike = await (await pool.query('insert into "like" (audience_id, music_id) values ($1, $2)', [data.audience_id, data.music_id])).rows
+        const queryForLike = await pool.query(`insert into likes (audience_id, music_id) values ($1,$2)`, [data.audience_id, data.music_id])
+        const resultForLike = queryForLike.rows
+        console.log('insert');
         pool.end();
-        return queryForLike;
+        return resultForLike;
     }
 }
 
